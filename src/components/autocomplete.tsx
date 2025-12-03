@@ -38,6 +38,10 @@ export const Autocomplete: React.FC<Props> = ({
   }, [query, delay]);
 
   const filterPeople: Person[] = useMemo(() => {
+    if (appliedQuery === ' ') {
+      return [];
+    }
+
     return people.filter(person =>
       person.name.toLowerCase().includes(appliedQuery.toLowerCase()),
     );
