@@ -24,13 +24,12 @@ export const Autocomplete: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    const trimmedQuery = query.trim();
     const timerId = window.setTimeout(() => {
-      if (trimmedQuery !== prevAppliedQuery.current) {
-        setAppliedQuery(trimmedQuery);
+      if (query !== prevAppliedQuery.current) {
+        setAppliedQuery(query);
       }
 
-      prevAppliedQuery.current = trimmedQuery;
+      prevAppliedQuery.current = query;
     }, delay);
 
     return () => {
@@ -40,26 +39,15 @@ export const Autocomplete: React.FC<Props> = ({
 
   const filterPeople: Person[] = useMemo(() => {
     return people.filter(person =>
-      person.name.toLowerCase().includes(appliedQuery.trim().toLowerCase()),
+      person.name.toLowerCase().includes(appliedQuery.toLowerCase()),
     );
   }, [appliedQuery, people]);
-
-  useEffect(() => {
-    const handler = (event: PointerEvent) => {
-      if (!container.current?.contains(event.target as Node)) {
-        setListIsShown(false);
-      }
-    };
-
-    document.addEventListener('pointerdown', handler);
-
-    return () => document.removeEventListener('pointerdown', handler);
-  }, []);
 
   return (
     <div
       className={listIsShown ? 'dropdown is-active' : 'dropdown'}
       ref={container}
+      onBlur={() => setListIsShown(false)}
     >
       <div className="dropdown-trigger">
         <input
@@ -69,9 +57,7 @@ export const Autocomplete: React.FC<Props> = ({
           data-cy="search-input"
           value={query}
           onChange={handleQueryChange}
-          onFocus={() => {
-            setListIsShown(true);
-          }}
+          onFocus={() => setListIsShown(true)}
         />
       </div>
 
@@ -83,7 +69,7 @@ export const Autocomplete: React.FC<Props> = ({
                 className="dropdown-item"
                 data-cy="suggestion-item"
                 key={person.slug}
-                onClick={() => {
+                onMouseDown={() => {
                   setQuery(person.name);
                   onSelected(person);
                   setListIsShown(false);
